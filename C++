@@ -1,0 +1,68 @@
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int data;
+    Node* npx; // XOR of next and previous node
+};
+
+// Utility function to XOR two pointers
+Node* XOR(Node* a, Node* b) {
+    return reinterpret_cast<Node*>(
+        reinterpret_cast<uintptr_t>(a) ^ reinterpret_cast<uintptr_t>(b));
+}
+
+// Insert a node at the beginning of the XOR linked list
+void insert(Node** head_ref, int data) {
+    Node* new_node = new Node();
+    new_node->data = data;
+
+    // Since new_node is inserted at the beginning, npx of new_node will be XOR of nullptr and current head
+    new_node->npx = *head_ref;
+
+    // If the list is not empty, then update the npx of current head node
+    if (*head_ref != nullptr) {
+        (*head_ref)->npx = XOR(new_node, (*head_ref)->npx);
+    }
+
+    // Update head
+    *head_ref = new_node;
+}
+
+// Function to print the XOR linked list
+void printList(Node* head) {
+    Node* curr = head;
+    Node* prev = nullptr;
+    Node* next;
+
+    cout << "The nodes of the XOR linked list are: \n";
+
+    // Traverse the list
+    while (curr != nullptr) {
+        // Print the current node
+        cout << curr->data << " ";
+
+        // Get the next node: XOR of current node's npx and the previous node
+        next = XOR(prev, curr->npx);
+
+        // Update prev and curr for next iteration
+        prev = curr;
+        curr = next;
+    }
+    cout << endl;
+}
+
+int main() {
+    Node* head = nullptr; // Initialize empty XOR linked list
+
+    // Insert elements
+    insert(&head, 10);
+    insert(&head, 20);
+    insert(&head, 30);
+    insert(&head, 40);
+
+    // Print the XOR linked list
+    printList(head);
+
+    return 0;
+}
